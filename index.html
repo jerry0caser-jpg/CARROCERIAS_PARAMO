@@ -1,0 +1,166 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Listado de Materiales – Carrocerías Páramo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <img id="brandLogo" alt="Logo empresa" style="display:none" />
+
+  <header class="topbar">
+    <h1>Carrocerías Páramo · Listado de Materiales</h1>
+  </header>
+
+  <main class="container">
+    <!-- Panel izquierdo -->
+    <section class="card">
+      <div class="card-title">
+        <h2>Configuración</h2>
+        <small>Datos generales</small>
+      </div>
+
+      <div class="row">
+        <label for="inpEmpresa">Nombre de la empresa (membrete PDF)</label>
+        <input id="inpEmpresa" placeholder="Ej. Carrocerías PÁRAMO" />
+      </div>
+
+      <div class="row">
+        <label for="inpLogo">Logotipo (PNG/JPG para PDF)</label>
+        <input id="inpLogo" type="file" accept="image/png,image/jpeg" />
+        <small class="muted">Se guarda en memoria; el PDF lo conserva aunque recargues.</small>
+        <img id="logoPreview" alt="Vista previa logo"
+             style="max-width:180px;display:none;margin-top:6px;border:1px solid #eee;border-radius:8px;padding:6px;background:#fff;" />
+      </div>
+
+      <div class="row">
+        <label for="inpCliente">Nombre del cliente</label>
+        <input id="inpCliente" placeholder="Ej. Transportes Guzmán" />
+      </div>
+
+      <!-- Tipo de carrocería + libre -->
+      <div class="row">
+        <label for="selBodyType">Tipo de carrocería</label>
+        <select id="selBodyType"></select>
+      </div>
+      <div class="row split">
+        <input id="inpCustomBody" class="grow" list="dlBodyTypes" placeholder="Agregar tipo libre (Ej. Caja isotérmica)" />
+        <button id="btnAddCustomBody" class="btn">+ Agregar tipo</button>
+      </div>
+
+      <!-- Variantes -->
+      <div class="row">
+        <label for="inpAddVariant">Agregar otro producto (variantes)</label>
+        <div class="split">
+          <input id="inpAddVariant" list="dlVariants" class="grow"
+                 placeholder="Ej. Térmico, Sistema de enfriamiento, Volado sobre cabina, Cuadrada" />
+          <datalist id="dlVariants"></datalist>
+          <button id="btnAddVariant" class="btn">+ Agregar</button>
+        </div>
+      </div>
+
+      <div class="chips" id="chipsActive"></div>
+      <div class="chips" id="chipsVariants"></div>
+
+      <!-- Dimensiones -->
+      <div class="row split">
+        <input id="inpLargo" placeholder="Largo" />
+        <input id="inpAncho" placeholder="Ancho" />
+        <input id="inpAlto"  placeholder="Alto" />
+      </div>
+      <div class="row">
+        <label for="inpDimUnit">Unidad de dimensiones</label>
+        <input id="inpDimUnit" list="dlUnits" placeholder="Ej. ft, m, cm, in" />
+      </div>
+
+      <div class="row">
+        <label for="txtObs">Observaciones generales</label>
+        <textarea id="txtObs" rows="6" placeholder="Ej.: Color, norma, marca, entrega, etc."></textarea>
+      </div>
+    </section>
+
+    <!-- Listado -->
+    <section class="card wide">
+      <div class="card-title actions">
+        <div>
+          <h2>Listado</h2>
+          <small id="subtitleView">Campos: Producto, Medidas (ej. 4x8), Unidad, Calibre, Cantidad, Notas</small>
+        </div>
+        <div class="btn-group">
+          <button id="btnSelectAll" class="btn">Seleccionar todo</button>
+          <button id="btnClearSel" class="btn">Limpiar selección</button>
+          <button id="btnDeleteSel" class="btn danger" disabled>Eliminar seleccionados</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="tblListado">
+          <thead id="theadListado"></thead>
+          <tbody id="tbodyListado"></tbody>
+        </table>
+      </div>
+
+      <div class="summary">
+        <span id="sumPartidas">Partidas: 0</span>
+        <span id="sumCantidades">· Suma cantidades: 0</span>
+        <span id="sumSeleccion" class="muted">· Sin selección</span>
+      </div>
+    </section>
+
+    <!-- Captura rápida -->
+    <section class="card">
+      <div class="card-title">
+        <h2>Captura rápida (Libre)</h2>
+        <small>Agrega materiales manualmente</small>
+      </div>
+
+      <div class="grid2">
+        <input id="libProd"   placeholder="Producto" />
+        <input id="libMed"    placeholder="Medidas (ej. 4x8)" />
+        <input id="libUni"    list="dlUnits" placeholder="Unidad (libre)" />
+        <input id="libCal"    placeholder="Calibre/Espesor" />
+        <input id="libCant"   type="number" min="0" value="1" placeholder="Cantidad" />
+        <input id="libNotas"  class="full" placeholder="Notas (color, marca, norma, etc.)" />
+      </div>
+
+      <div class="row">
+        <button id="btnAddLibre" class="btn primary full">+ Agregar al listado</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Exportación -->
+  <div class="export-footer">
+    <button id="btnExportPDF" class="btn primary big">⬇ Exportar a PDF</button>
+  </div>
+
+  <!-- Leyenda del autor -->
+  <footer class="foot">
+    <small class="legend">Aplicación desarrollada por Gerardo Castañeda Serrano</small>
+  </footer>
+
+  <!-- Sugerencias -->
+  <datalist id="dlUnits">
+    <option value="pza"></option>
+    <option value="ft"></option>
+    <option value="ft²"></option>
+    <option value="lb"></option>
+    <option value="gal"></option>
+    <option value="set"></option>
+    <option value="kit"></option>
+    <option value="roll"></option>
+    <option value="m"></option>
+    <option value="cm"></option>
+    <option value="mm"></option>
+    <option value="in"></option>
+    <option value="m²"></option>
+  </datalist>
+
+  <datalist id="dlVariants"></datalist>
+  <datalist id="dlBodyTypes"></datalist>
+</body>
+</html>
